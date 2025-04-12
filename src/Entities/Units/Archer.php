@@ -40,7 +40,7 @@ class Archer extends Unit
     public function transform(Army $army)
     {
         if ($army->getGold() < self::TRANSFORMATION_COST) {
-            throw new Exception("Oro insuficiente para transformar a knight.");
+            throw new Exception("Gold insufficient to transform to knight.");
         }
         $army->setGold($army->getGold() - self::TRANSFORMATION_COST);
         $extra = $this->strength - self::BASE_STRENGTH; // Difference accumulated by training (can be 0)

@@ -22,7 +22,7 @@ abstract class Unit
     {
         $cost = $this->getTrainingCost();
         if ($army->getGold() < $cost) {
-            throw new Exception("Oro insuficiente para entrenar la unidad.");
+            throw new Exception("Not enough gold to train this unit.");
         }
         $army->setGold($army->getGold() - $cost);
         $this->strength += $this->getTrainingIncrease();
