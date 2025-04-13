@@ -15,7 +15,7 @@ class Pikeman extends Unit
     const BASE_STRENGTH = 5;
     const TRAINING_INCREASE = 3;
     const TRAINING_COST = 10;
-    const TRANSFORMATION_COST = 10;
+    const TRANSFORMATION_COST = 30;
 
     public function getType()
     {

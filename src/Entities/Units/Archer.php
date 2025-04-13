@@ -13,7 +13,7 @@ class Archer extends Unit
     const BASE_STRENGTH = 10;
     const TRAINING_INCREASE = 7;
     const TRAINING_COST = 20;
-    const TRANSFORMATION_COST = 20;
+    const TRANSFORMATION_COST = 40;
 
     public function getType()
     {
