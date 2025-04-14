@@ -1,68 +1,97 @@
 <?php
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use League\CLImate\CLImate;
 use App\Entities\Civilization;
 use App\Entities\Units\Unit;
-use App\Services\Battle;
+use App\Services\BattleService;
 
+$climate = new CLImate();
 
-echo " ------------------ BATTLE BETWEEN TWO ARMIES OF THE SAME CIVILIZATION ---------------------- " . PHP_EOL;
+$climate->bold()->green()->out(PHP_EOL . str_repeat('-', 80));
+$climate->bold()->green()->out("BATTLE BETWEEN TWO ARMIES OF THE SAME CIVILIZATION");
+$climate->bold()->green()->out(str_repeat('-', 80) . PHP_EOL);
+
 try {
+    $climate->bold()->blue()->out(PHP_EOL . "⚔️  CHINESE vs CHINESE");
 
-    echo "CHINE vs CHINE";
-
-    echo "STAGE 1: CREATE CIVILIZATION" . PHP_EOL;
+    // STAGE 1
+    $climate->bold()->out(PHP_EOL . "🔧 STAGE 1: CREATE CIVILIZATION");
     $civilizationChine = new Civilization("Chinese");
+    $climate->red("🏰 New civilization created: " . $civilizationChine->getCivilizationName());
 
-    echo "STAGE 2: CREATE ARMY" . PHP_EOL;
+    // STAGE 2
+    $climate->bold()->out(PHP_EOL . "🛡️ STAGE 2: CREATE ARMIES");
+
     $civilizationChine->createArmy("chinese first army", [
-        ['type' => Unit::PIKEMAN, 'quantity' => 2],
-        ['type' => Unit::ARCHER, 'quantity' => 25],
-        ['type' => Unit::KNIGHT, 'quantity' => 2]
+        ['type' => Unit::PIKEMAN, 'quantity' => 1],
+        ['type' => Unit::ARCHER, 'quantity' => 2],
+        ['type' => Unit::KNIGHT, 'quantity' => 1]
     ]);
 
     $civilizationChine->createArmy("chinese second army", [
-        ['type' => Unit::PIKEMAN, 'quantity' => 40],
-        ['type' => Unit::ARCHER, 'quantity' => 25],
-        ['type' => Unit::KNIGHT, 'quantity' => 2]
+        ['type' => Unit::PIKEMAN, 'quantity' => 1],
+        ['type' => Unit::ARCHER, 'quantity' => 1],
+        ['type' => Unit::KNIGHT, 'quantity' => 4]
     ]);
 
-    echo "STAGE 3: SHOW ARMY STRENGTH" . PHP_EOL;
+    $climate->cyan("🪖 Army created: " . $civilizationChine->getAllArmies()['chinese-first-army']->getArmyName());
+    $climate->red("🪖 Army created: " . $civilizationChine->getAllArmies()['chinese-second-army']->getArmyName());
+
+    // STAGE 3
+    $climate->bold()->out(PHP_EOL . "📊 STAGE 3: SHOW ARMY STRENGTH");
+
     $allArmiesChinese = $civilizationChine->getAllArmies();
+
     foreach ($allArmiesChinese as $armyName => $army) {
-        echo "-------------------" . $armyName . "-------------------" . PHP_EOL;
-        echo "Army: " . $armyName . " - Strength: " . $army->getTotalStrength() . PHP_EOL;
+        $climate->border()->green()->out(" 🪖 ARMY: " . strtoupper($armyName) . " ");
+        $color = $armyName === 'chinese-first-army' ? 'cyan' : 'red';
+        $climate->$color()->out("💪 Total Strength: " . $army->getTotalStrength());
+
         foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
+            $climate->$color()->out("   🔹 Unit Type: {$unit->getType()} | Strength: {$unit->getStrength()}");
         }
     }
 
-    echo "STAGE 4: BATTLE CHINE VS CHINE" . PHP_EOL;
-    $battle = new Battle();
-    $battle->fight($allArmiesChinese['chinese-first-army'], $allArmiesChinese['chinese-second-army']);
+    // STAGE 4
+    $climate->bold()->out(PHP_EOL . "🔥 STAGE 4: BATTLE BEGINS - CHINESE vs CHINESE 🔥");
 
-    echo "STAGE 5: SHOW CHINESE BATTLE HISTORY" . PHP_EOL;
-    $historyChinese = $allArmiesChinese['chinese-first-army']->getHistoryBattles();
-    foreach ($historyChinese as $battle) {
-        echo "Battle against: " . $battle['enemyArmyName'] . " - Result: " . $battle['result'] . PHP_EOL;
+    $battle = new BattleService();
+    $battle->fight(
+        $allArmiesChinese['chinese-first-army'],
+        $allArmiesChinese['chinese-second-army']
+    );
+
+    // STAGE 5
+    $climate->bold()->out(PHP_EOL . "📜 STAGE 5: BATTLE HISTORY - CHINESE-FIRST-ARMY");
+    $history = $allArmiesChinese['chinese-first-army']->getHistoryBattles();
+    foreach ($history as $battle) {
+        $climate->cyan("🆚 Against: {$battle['enemyArmyName']} | 🏁 Result: {$battle['result']}");
     }
 
-    echo "STAGE 6: SHOW CHINESE BATTLE HISTORY" . PHP_EOL;
-    $historyChinese = $allArmiesChinese['chinese-second-army']->getHistoryBattles();
-    foreach ($historyChinese as $battle) {
-        echo "Battle against: " . $battle['enemyArmyName'] . " - Result: " . $battle['result'] . PHP_EOL;
+    // STAGE 6
+    $climate->bold()->out(PHP_EOL . "📜 STAGE 6: BATTLE HISTORY - CHINESE-SECOND-ARMY");
+    $history = $allArmiesChinese['chinese-second-army']->getHistoryBattles();
+    foreach ($history as $battle) {
+        $climate->red("🆚 Against: {$battle['enemyArmyName']} | 🏁 Result: {$battle['result']}");
     }
 
-    echo "STAGE 7: SHOW ARMYS AND GOLD AFTER BATTLE" . PHP_EOL;
-    echo "Army: " . $allArmiesChinese['chinese-first-army']->getArmyName() . " - Gold: " . $allArmiesChinese['chinese-first-army']->getGold() . PHP_EOL;
-    echo "Army: " . $allArmiesChinese['chinese-second-army']->getArmyName() . " - Gold: " . $allArmiesChinese['chinese-second-army']->getGold() . PHP_EOL;
+    // STAGE 7
+    $climate->bold()->out(PHP_EOL . "💰 STAGE 7: ARMIES' GOLD AFTER BATTLE");
+    $climate->yellow("💎 chinese-first-army: " . $allArmiesChinese['chinese-first-army']->getGold() . " gold");
+    $climate->yellow("💎 chinese-second-army: " . $allArmiesChinese['chinese-second-army']->getGold() . " gold");
 
-    echo "STAGE 8: SHOW ARMYS AND GOLD AFTER BATTLE" . PHP_EOL;
+    // STAGE 8
+    $climate->bold()->out(PHP_EOL . "🪖 STAGE 8: REMAINING UNITS AFTER BATTLE");
+
     foreach ($allArmiesChinese as $armyName => $army) {
+        $climate->border()->green()->out(" 🪖 ARMY: " . strtoupper($armyName) . " ");
+        $color = $armyName === 'chinese-first-army' ? 'cyan' : 'red';
         foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
+            $climate->$color()->out("   🔸 Unit Type: {$unit->getType()} | Strength: {$unit->getStrength()}");
         }
     }
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . PHP_EOL;
+    $climate->error("❌ Error: " . $e->getMessage());
 }

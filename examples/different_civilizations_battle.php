@@ -2,114 +2,113 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use League\CLImate\CLImate;
 use App\Entities\Civilization;
 use App\Entities\Units\Unit;
-use App\Services\Battle;
+use App\Services\BattleService;
 
-echo " ------------------ BATTLE BETWEEN ARMIES OF DIFFERENT CIVILIZATIONS ---------------------- " . PHP_EOL;
+$climate = new CLImate();
+
+function printArmyDetails(CLImate $climate, Civilization $civ, string $color): void
+{
+    $armies = $civ->getAllArmies();
+    foreach ($armies as $armyName => $army) {
+        $climate->{$color}()->br()->bold("==> Army: $armyName");
+        $climate->yellow("Gold: " . $army->getGold());
+        $climate->{$color}("Total Units: " . count($army->getUnits()));
+        foreach ($army->getUnits() as $unit) {
+            $climate->{$color}("  - {$unit->getType()} (Strength: {$unit->getStrength()})");
+        }
+    }
+}
+
+function printBattleHistory(CLImate $climate, $army, string $color, string $armyName): void
+{
+    $history = $army->getHistoryBattles();
+    if (empty($history)) {
+        $climate->{$color}("No battles recorded for $armyName.");
+        return;
+    }
+
+    $climate->br()->{$color}()->bold("==> $armyName Battle History");
+    $climate->table(array_map(function ($b) {
+        return [
+            'Enemy Army' => $b['enemyArmyName'],
+            'Result'     => strtoupper($b['result']),
+        ];
+    }, $history));
+}
+
+$climate->border();
+$climate->bold()->out('🛡️  BATTLE BETWEEN ARMIES OF DIFFERENT CIVILIZATIONS');
+$climate->border();
+
 try {
-    echo "STAGE 1: CREATE CIVILIZATION" . PHP_EOL;
+    // STAGE 1: CREATE CIVILIZATIONS
+    $climate->br()->bold()->out('🏰 STAGE 1: CREATE CIVILIZATIONS');
     $civilizationChine = new Civilization("Chinese");
     $civilizationEnglish = new Civilization("English");
     $civilizationByzantine = new Civilization("Byzantine");
-    echo "New civilization created: " . $civilizationChine->getCivilizationName() . PHP_EOL;
-    echo "New civilization created: " . $civilizationEnglish->getCivilizationName() . PHP_EOL;
-    echo "New civilization created: " . $civilizationByzantine->getCivilizationName() . PHP_EOL;
 
-    echo "STAGE 2: CREATE ARMY" . PHP_EOL;
+    $climate->red("Created: " . $civilizationChine->getCivilizationName());
+    $climate->green("Created: " . $civilizationEnglish->getCivilizationName());
+    $climate->blue("Created: " . $civilizationByzantine->getCivilizationName());
 
-    $armyChine = $civilizationChine->createArmy("chinese first army", [
+    // STAGE 2: CREATE ARMIES
+    $climate->br()->bold()->out('⚔️  STAGE 2: CREATE ARMIES');
+    $armyChine = $civilizationChine->createArmy("Chinese First Army", [
         ['type' => Unit::PIKEMAN, 'quantity' => 2],
         ['type' => Unit::ARCHER, 'quantity' => 25],
         ['type' => Unit::KNIGHT, 'quantity' => 2]
     ]);
-
-    $armyEnglish = $civilizationEnglish->createArmy("ENGLISH FIRST ARMY", [
+    $armyEnglish = $civilizationEnglish->createArmy("English First Army", [
         ['type' => Unit::PIKEMAN, 'quantity' => 10],
         ['type' => Unit::ARCHER, 'quantity' => 10],
         ['type' => Unit::KNIGHT, 'quantity' => 10]
     ]);
-
     $armyByzantine = $civilizationByzantine->createArmy("Byzantine First Army", [
         ['type' => Unit::PIKEMAN, 'quantity' => 5],
         ['type' => Unit::ARCHER, 'quantity' => 8],
         ['type' => Unit::KNIGHT, 'quantity' => 15]
     ]);
 
-    $allArmiesChinese = $civilizationChine->getAllArmies();
-    foreach ($allArmiesChinese as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
+    $climate->red("Army created: " . $armyChine->getArmyName());
+    $climate->green("Army created: " . $armyEnglish->getArmyName());
+    $climate->blue("Army created: " . $armyByzantine->getArmyName());
 
-    $allArmiesEnglish = $civilizationEnglish->getAllArmies();
-    foreach ($allArmiesEnglish as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
+    // STAGE 3: DISPLAY UNITS
+    $climate->br()->bold()->out('🧍‍♂️ STAGE 3: DISPLAY UNITS IN ARMIES');
+    printArmyDetails($climate, $civilizationChine, 'red');
+    printArmyDetails($climate, $civilizationEnglish, 'green');
+    printArmyDetails($climate, $civilizationByzantine, 'blue');
 
-    $allArmiesByzantine = $civilizationByzantine->getAllArmies();
-    foreach ($allArmiesByzantine as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
+    // STAGE 4: TOTAL STRENGTH
+    $climate->br()->bold()->out('💪 STAGE 4: SHOW ARMY STRENGTH');
+    $climate->red("Chinese Army Strength: " . $armyChine->getTotalStrength());
+    $climate->green("English Army Strength: " . $armyEnglish->getTotalStrength());
+    $climate->blue("Byzantine Army Strength: " . $armyByzantine->getTotalStrength());
 
-    echo "STAGE 3: SHOW ARMY STRENGTH" . PHP_EOL;
-    echo "Army: " . $armyChine->getArmyName() . " - Strength: " . $armyChine->getTotalStrength() . PHP_EOL;
-    echo "Army: " . $armyEnglish->getArmyName() . " - Strength: " . $armyEnglish->getTotalStrength() . PHP_EOL;
-    echo "Army: " . $armyByzantine->getArmyName() . " - Strength: " . $armyByzantine->getTotalStrength() . PHP_EOL;
+    // STAGE 5: BATTLES
+    $climate->br()->bold()->out('⚔️ STAGE 5: BATTLES');
+    $battle = new BattleService();
 
-    echo "STAGE 4: BATTLE CHINA VS ENGLAND" . PHP_EOL;
-
-    $battle = new Battle();
+    $climate->red()->bold()->out("🔴 Battle: Chinese vs English");
     $battle->fight($armyChine, $armyEnglish);
 
-    echo "STAGE 4: BATTLE BYZANTINE VS CHINA" . PHP_EOL;
+    $climate->blue()->bold()->out("🔵 Battle: Byzantine vs Chinese");
     $battle->fight($armyByzantine, $armyChine);
 
-    echo "STAGE 5: SHOW CHINESE BATTLE HISTORY" . PHP_EOL;
-    $historyChinese = $armyChine->getHistoryBattles();
-    foreach ($historyChinese as $battle) {
-        echo "Battle against: " . $battle['enemyArmyName'] . " - Result: " . $battle['result'] . PHP_EOL;
-    }
-    echo "STAGE 6: SHOW BYZANTINE BATTLE HISTORY" . PHP_EOL;
-    $historyByzantine = $armyByzantine->getHistoryBattles();
-    foreach ($historyByzantine as $battle) {
-        echo "Battle against: " . $battle['enemyArmyName'] . " - Result: " . $battle['result'] . PHP_EOL;
-    }
-    echo "STAGE 7: SHOW ENGLISH BATTLE HISTORY" . PHP_EOL;
-    $historyEnglish = $armyEnglish->getHistoryBattles();
-    foreach ($historyEnglish as $battle) {
-        echo "Battle against: " . $battle['enemyArmyName'] . " - Result: " . $battle['result'] . PHP_EOL;
-    }
+    // STAGE 6: BATTLE HISTORIES
+    $climate->br()->bold()->out('📜 STAGE 6: BATTLE HISTORIES');
+    printBattleHistory($climate, $armyChine, 'red', 'Chinese');
+    printBattleHistory($climate, $armyEnglish, 'green', 'English');
+    printBattleHistory($climate, $armyByzantine, 'blue', 'Byzantine');
 
-    echo "STAGE 8: SHOW ARMYS AND GOLD AFTER BATTLE" . PHP_EOL;
-    echo " ------------------ Chinese ---------------------- " . PHP_EOL;
-    echo "Army: " . $armyChine->getArmyName() . " - Gold: " . $armyChine->getGold() . PHP_EOL;
-    foreach ($allArmiesChinese as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
-
-    echo " ------------------ ENGLISH ---------------------- " . PHP_EOL;
-    echo "Army: " . $armyEnglish->getArmyName() . " - Gold: " . $armyEnglish->getGold() . PHP_EOL;
-    foreach ($allArmiesEnglish as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
-
-    echo " ------------------ BYZANTINE ---------------------- " . PHP_EOL;
-    echo "Army: " . $armyByzantine->getArmyName() . " - Gold: " . $armyByzantine->getGold() . PHP_EOL;
-    foreach ($allArmiesByzantine as $armyName => $army) {
-        foreach ($army->getUnits() as $unit) {
-            echo "Army: " . $armyName . " { Unit Type: " . $unit->getType() . " - Strength: " . $unit->getStrength() . " }" . PHP_EOL;
-        }
-    }
+    // STAGE 7: FINAL STATUS
+    $climate->br()->bold()->out('💰 STAGE 7: GOLD & ARMY STATUS AFTER BATTLES');
+    printArmyDetails($climate, $civilizationChine, 'red');
+    printArmyDetails($climate, $civilizationEnglish, 'green');
+    printArmyDetails($climate, $civilizationByzantine, 'blue');
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . PHP_EOL;
+    $climate->error("❌ Error: " . $e->getMessage());
 }
