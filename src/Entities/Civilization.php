@@ -2,10 +2,7 @@
 
 namespace App\Entities;
 
-use App\Entities\Units\Archer;
-use App\Entities\Units\Knight;
-use App\Entities\Units\Pikeman;
-use App\Entities\Units\Unit;
+use App\Factories\UnitFactory;
 use App\Helpers\Formatter;
 use App\Interfaces\CivilizationInterface;
 
@@ -35,21 +32,8 @@ class Civilization implements CivilizationInterface
 
         $army = new Army($formattedArmyName);
         foreach ($soldiers as $soldier) {
-            // The concrete class is determined based on the received type.
             for ($i = 0; $i < $soldier['quantity']; $i++) {
-                switch ($soldier['type']) {
-                    case Unit::PIKEMAN:
-                        $unit = new Pikeman();
-                        break;
-                    case Unit::ARCHER:
-                        $unit = new Archer();
-                        break;
-                    case Unit::KNIGHT:
-                        $unit = new Knight();
-                        break;
-                    default:
-                        throw new Exception("Unknown unit type: " . $soldier['type']);
-                }
+                $unit = UnitFactory::createUnit($soldier['type']);
                 $army->addUnit($unit);
             }
         }
