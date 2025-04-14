@@ -8,7 +8,7 @@ abstract class Unit
     const ARCHER = "archer";
     const KNIGHT = "knight";
 
-    protected $strength;
+    protected int $strength;
 
     public function __construct()
     {
@@ -20,18 +20,21 @@ abstract class Unit
         $this->strength += $points;
     }
 
-    public function getStrength()
+    public function getStrength(): int
     {
         return $this->strength;
     }
 
-    public function setStrength(int $strength)
+    public function setStrength(int $strength): void
     {
+        if ($strength < 0) {
+            throw new \InvalidArgumentException("Strength cannot be negative");
+        }
         $this->strength = $strength;
     }
 
-    abstract protected function getBaseStrength();
-    abstract public function getTrainingIncrease();
-    abstract public function getTrainingCost();
-    abstract public function getType();
+    abstract protected function getBaseStrength(): int;
+    abstract public function getTrainingIncrease(): int;
+    abstract public function getTrainingCost(): int;
+    abstract public function getType(): string;
 }

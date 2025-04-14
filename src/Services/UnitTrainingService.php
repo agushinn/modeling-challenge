@@ -12,7 +12,7 @@ class UnitTrainingService
     {
         $cost = $unit->getTrainingCost();
         if ($army->getGold() < $cost) {
-            throw new Exception("Not enough gold to train this unit.");
+            throw new \Exception("Not enough gold to train this unit.");
         }
         $army->setGold($army->getGold() - $cost);
         $unit->increaseStrength($unit->getTrainingIncrease());

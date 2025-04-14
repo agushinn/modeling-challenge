@@ -10,24 +10,28 @@ use Exception;
 
 class Civilization implements CivilizationInterface
 {
-    private $civilizationName;
-    private $armies = [];
+    private string $civilizationName;
+    private array $armies = [];
 
-    public function __construct($civilizationName)
+    public function __construct(string $civilizationName)
     {
         $this->civilizationName = $civilizationName;
     }
 
-    public function getCivilizationName()
+    public function getCivilizationName(): string
     {
         return $this->civilizationName;
     }
 
-    public function createArmy(string $armyName, array $soldiers)
+    public function createArmy(string $armyName, array $soldiers): Army
     {
         $formattedArmyName = Formatter::formatName($armyName);
         if (isset($this->armies[$formattedArmyName])) {
             throw new Exception("Army '$formattedArmyName' already exists in civilization '{$this->civilizationName}'");
+        }
+
+        if (empty($soldiers)) {
+            throw new \InvalidArgumentException("Soldiers array cannot be empty");
         }
 
         $army = new Army($formattedArmyName);
@@ -42,7 +46,7 @@ class Civilization implements CivilizationInterface
         return $army;
     }
 
-    public function getArmy(string $armyName)
+    public function getArmy(string $armyName): Army
     {
         $formattedArmyName = Formatter::formatName($armyName);
 

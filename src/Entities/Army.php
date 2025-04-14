@@ -12,37 +12,40 @@ class Army implements ArmyInterface
     private $gold = 1000;
     private $historyBattles = [];
 
-    public function __construct($armyName)
+    public function __construct(string $armyName)
     {
         $this->armyName = $armyName;
     }
 
-    public function getArmyName()
+    public function getArmyName(): string
     {
         return $this->armyName;
     }
 
-    public function getGold()
+    public function getGold(): int
     {
         return $this->gold;
     }
 
-    public function setGold($gold)
+    public function setGold(int $gold): void
     {
+        if ($gold < 0) {
+            throw new \InvalidArgumentException("Gold cannot be negative");
+        }
         $this->gold = $gold;
     }
 
-    public function getUnits()
+    public function getUnits(): array
     {
         return $this->units;
     }
 
-    public function addUnit(Unit $unit)
+    public function addUnit(Unit $unit): void
     {
         $this->units[] = $unit;
     }
 
-    public function removeUnit(Unit $unit)
+    public function removeUnit(Unit $unit): void
     {
         foreach ($this->units as $key => $existingUnit) {
             if ($existingUnit === $unit) {
@@ -54,7 +57,7 @@ class Army implements ArmyInterface
         }
     }
 
-    public function getTotalStrength()
+    public function getTotalStrength(): int
     {
         $totalStrength = 0;
         foreach ($this->units as $unit) {
@@ -63,17 +66,17 @@ class Army implements ArmyInterface
         return $totalStrength;
     }
 
-    public function getHistoryBattles()
+    public function getHistoryBattles(): array
     {
         return $this->historyBattles;
     }
 
-    public function addHistoryBattle($battle)
+    public function addHistoryBattle(array $battle): void
     {
         $this->historyBattles[] = $battle;
     }
 
-    public function getHistoryBattleByEnemyArmy($enemyArmyName)
+    public function getHistoryBattleByEnemyArmy($enemyArmyName): ?array
     {
         foreach ($this->historyBattles as $battle) {
             if ($battle['enemyArmyName'] == $enemyArmyName) {
