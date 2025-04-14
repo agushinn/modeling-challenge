@@ -2,9 +2,6 @@
 
 namespace App\Entities\Units;
 
-use App\Entities\Army;
-use Exception;
-
 abstract class Unit
 {
     const PIKEMAN = "pikeman";
@@ -18,14 +15,9 @@ abstract class Unit
         $this->strength = $this->getBaseStrength();
     }
 
-    public function train(Army $army)
+    public function increaseStrength(int $points): void
     {
-        $cost = $this->getTrainingCost();
-        if ($army->getGold() < $cost) {
-            throw new Exception("Not enough gold to train this unit.");
-        }
-        $army->setGold($army->getGold() - $cost);
-        $this->strength += $this->getTrainingIncrease();
+        $this->strength += $points;
     }
 
     public function getStrength()
@@ -33,9 +25,13 @@ abstract class Unit
         return $this->strength;
     }
 
+    public function setStrength(int $strength)
+    {
+        $this->strength = $strength;
+    }
+
     abstract protected function getBaseStrength();
-    abstract protected function getTrainingIncrease();
-    abstract protected function getTrainingCost();
-    abstract protected function getType();
-    abstract public function transform(Army $army);
+    abstract public function getTrainingIncrease();
+    abstract public function getTrainingCost();
+    abstract public function getType();
 }

@@ -3,8 +3,6 @@
 namespace App\Entities\Units;
 
 use App\Entities\Units\Unit;
-use App\Entities\Army;
-use Exception;
 
 class Knight extends Unit
 {
@@ -24,19 +22,13 @@ class Knight extends Unit
         return self::BASE_STRENGTH;
     }
 
-    protected function getTrainingIncrease()
+    public function getTrainingIncrease()
     {
         return self::TRAINING_INCREASE;
     }
 
-    protected function getTrainingCost()
+    public function getTrainingCost()
     {
         return self::TRAINING_COST;
-    }
-
-    // Knight cannot be transformed to another unit.
-    public function transform(Army $army)
-    {
-        throw new Exception("Knight cannot be transformed.");
     }
 }
